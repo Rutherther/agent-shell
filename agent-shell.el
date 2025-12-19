@@ -5,7 +5,7 @@
 ;; Author: Alvaro Ramirez https://xenodium.com
 ;; URL: https://github.com/xenodium/agent-shell
 ;; Version: 0.25.1
-;; Package-Requires: ((emacs "29.1") (shell-maker "0.84.4") (acp "0.8.1"))
+;; Package-Requires: ((emacs "29.1") (shell-maker "0.84.4") (acp "0.8.2"))
 
 (defconst agent-shell--version "0.25.1")
 
@@ -1509,8 +1509,8 @@ Set NO-FOCUS to start in background.
 Set NEW-SESSION to start a separate new session."
   (unless (version<= "0.84.4" shell-maker-version)
     (error "Please update shell-maker to version 0.84.4 or newer"))
-  (unless (version<= "0.8.1" acp-package-version)
-    (error "Please update acp.el to version 0.8.1 or newer"))
+  (unless (version<= "0.8.2" acp-package-version)
+    (error "Please update acp.el to version 0.8.2 or newer"))
   (when (boundp 'agent-shell--transcript-file-path-function)
     (user-error "'agent-shell--transcript-file-path-function is retired.
 
