@@ -1213,8 +1213,8 @@ Example output:
                                             (concat (string-join (butlast enabled-items) ", ")
                                                     " and "
                                                     (car (last enabled-items)))))))
-                                 ;; Top-level boolean capabilities (loadSession)
-                                 ((eq value t)
+                                 ;; Top-level capabilities (loadSession)
+                                 (t
                                   (cons (downcase group-name) nil)))))
                             capabilities))))
     (agent-shell--align-alist
