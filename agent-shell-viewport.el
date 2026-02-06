@@ -115,8 +115,13 @@ Returns an alist with insertion details or nil otherwise:
                   (insert "\n\n" text))
                 (setq insert-end (point))))
           (agent-shell-viewport-edit-mode)
-          ;; Transitioned to edit mode. Start empty.
+          ;; Transitioned to edit mode. Wipe content.
           (agent-shell-viewport--initialize)
+          ;; Restore snapshot if needed.
+          (when-let ((snapshot agent-shell-viewport--compose-snapshot))
+            (insert (map-elt snapshot :content))
+            (goto-char (map-elt snapshot :location))
+            (setq agent-shell-viewport--compose-snapshot nil))
           (save-excursion
             (goto-char (point-max))
             (setq insert-start (point))
@@ -470,13 +475,18 @@ With EXISTING-ONLY, only return existing buffers without creating."
                                "\n\n"))))
     (with-current-buffer (agent-shell-viewport--shell-buffer)
       (goto-char (point-max)))
-    (agent-shell-viewport-edit-mode)
-    (if block-quoted-text
-        (progn
-          (agent-shell-viewport--initialize :prompt block-quoted-text)
-          (goto-char (point-max)))
+    (let ((snapshot agent-shell-viewport--compose-snapshot))
+      (agent-shell-viewport-edit-mode)
       (agent-shell-viewport--initialize)
-      (goto-char (point-min)))
+      (when snapshot
+        (insert (map-elt snapshot :content))
+        (setq agent-shell-viewport--compose-snapshot nil))
+      (when block-quoted-text
+        (goto-char (point-max))
+        (insert (if snapshot "\n\n" "") block-quoted-text))
+      (goto-char (if (or snapshot block-quoted-text)
+                     (point-max)
+                   (point-min))))
     ;; Setting point isn't enough at times. Force scrolling.
     (set-window-start (selected-window) (point-min))))
 
