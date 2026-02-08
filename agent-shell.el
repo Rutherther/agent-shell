@@ -543,13 +543,13 @@ With \\[universal-argument] \\[universal-argument] prefix, prompt to pick an exi
                                          (mapcar #'buffer-name (or (agent-shell-buffers)
                                                                    (user-error "No shells available")))
                                          nil t)))
-      (agent-shell--display-buffer (get-buffer shell-buffer))))
+      (agent-shell--dwim :shell-buffer (get-buffer shell-buffer))))
    ((equal arg '(4))
     (agent-shell--dwim :new-shell t))
    (t
     (agent-shell--dwim))))
 
-(cl-defun agent-shell--dwim (&key config new-shell)
+(cl-defun agent-shell--dwim (&key config new-shell shell-buffer)
   "Start or reuse an agent shell with DWIM behavior.
 
 CONFIG is the agent configuration to use.
@@ -571,7 +571,7 @@ handles viewport mode detection, existing shell reuse, and project context."
                                                            (error "No agent config found"))
                                                :no-focus t
                                                :new-session t)
-                         (agent-shell--shell-buffer))))
+                         (or shell-buffer (agent-shell--shell-buffer)))))
     (if new-shell
         (agent-shell-start :config (or config
                                        (agent-shell--resolve-preferred-config)
@@ -579,13 +579,13 @@ handles viewport mode detection, existing shell reuse, and project context."
                                         :prompt "Start new agent: ")
                                        (error "No agent config found")))
       (if (derived-mode-p 'agent-shell-mode)
-          (let* ((shell-buffer (agent-shell--shell-buffer :no-create t))
+          (let* ((shell-buffer (or shell-buffer (agent-shell--shell-buffer :no-create t)))
                  (text (agent-shell--context :shell-buffer shell-buffer)))
             (agent-shell-toggle)
             (when text
               (agent-shell--insert-to-shell-buffer :text text
                                                    :shell-buffer shell-buffer)))
-        (let* ((shell-buffer (agent-shell--shell-buffer))
+        (let* ((shell-buffer (or shell-buffer (agent-shell--shell-buffer)))
                (text (agent-shell--context :shell-buffer shell-buffer)))
           (agent-shell--display-buffer shell-buffer)
           (when text
